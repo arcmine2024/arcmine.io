@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArcMine Terminal | Quantum Cloud Mining</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        :root {
+            --primary-glow: rgba(0, 255, 242, 0.15);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020205;
+            color: white;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* Modern Glassmorphism Effect */
+        .glass-card {
+            background: rgba(10, 10, 18, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.05); }
+            50% { box-shadow: 0 0 40px rgba(0, 255, 242, 0.1); }
+        }
+
+        .active-glow {
+            animation: pulse-glow 3s infinite;
+        }
+
+        @keyframes scroll-up {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-50%); }
+        }
+
+        .animate-scroll {
+            animation: scroll-up 25s linear infinite;
+        }
+
+        /* Custom Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.05);
+            height: 6px;
+            border-radius: 10px;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+            border: 4px solid #0a0a0f;
+        }
+
+        .page-transition {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="selection:bg-cyan-500 selection:text-black">
+    <!-- Ambient Background -->
+    <div class="fixed inset-0 pointer-events-none z-0">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-cyan-500/10 blur-[120px] rounded-full opacity-30"></div>
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+    </div>
+
+    <!-- Responsive Navigation -->
+    <nav class="relative z-50 flex flex-wrap justify-between items-center px-4 md:px-12 py-6 md:py-8 max-w-7xl mx-auto gap-4">
+        <div class="flex items-center gap-3 cursor-pointer" onclick="showPage('home')">
+            <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center rotate-3 shadow-lg">
+                <i data-lucide="zap" class="text-black fill-black" size="20"></i>
+            </div>
+            <span class="text-xl md:text-2xl font-black tracking-tighter italic uppercase">ARCMINE<span id="nav-dot" class="text-cyan-400">.IO</span></span>
+        </div>
+        <div class="flex items-center gap-4 md:gap-8 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.1em] md:tracking-[0.2em] text-gray-500">
+            <div class="flex items-center gap-2 text-emerald-400 bg-emerald-400/5 px-2 md:px-3 py-1.5 rounded-full border border-emerald-400/20">
+                <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+                <span class="hidden xs:inline">System:</span> Active
+            </div>
+            <button onclick="showPage('docs')" class="hover:text-white transition-colors">Manual</button>
+            <button onclick="showPage('api')" class="hover:text-white transition-colors">API</button>
+        </div>
+    </nav>
+
+    <main id="main-content" class="relative z-10 max-w-6xl mx-auto px-4 md:px-6 py-8 md:py-12">
+        <!-- Home View -->
+        <div id="page-home" class="page-transition">
+            <div class="text-center mb-10 md:mb-16">
+                <h1 class="text-5xl md:text-8xl font-black mb-4 md:mb-6 tracking-tight italic uppercase leading-none">
+                    <span class="text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40">Quantum</span><br/>
+                    <span class="text-cyan-400">Mining</span>
+                </h1>
+                <p class="text-gray-500 text-[9px] md:text-[11px] font-bold tracking-[0.3em] md:tracking-[0.6em] uppercase px-4">Distributed Cloud Architecture v4.2 • 2024 Build</p>
+            </div>
+
+            <!-- Asset Selection -->
+            <div id="crypto-selector" class="flex flex-wrap justify-center gap-3 md:gap-4 mb-8 md:mb-12"></div>
+
+            <!-- Configuration Container -->
+            <div id="setup-view" class="glass-card rounded-[30px] md:rounded-[40px] p-6 md:p-12 max-w-2xl mx-auto active-glow">
+                <div class="space-y-8 md:space-y-10">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-end">
+                            <label class="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest">Hashrate Allocation</label>
+                            <span id="hashrate-display" class="text-xl md:text-2xl font-black italic text-white">5,000 <span class="text-xs text-gray-500 not-italic">TH/s</span></span>
+                        </div>
+                        <div class="bg-black/40 p-6 md:p-8 rounded-2xl md:rounded-3xl border border-white/5">
+                            <input type="range" id="hashrate-slider" min="1000" max="150000" step="1000" value="5000" class="w-full cursor-pointer">
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <label id="wallet-label" class="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest">Withdrawal Address</label>
+                        <div class="relative">
+                            <input type="text" id="wallet-input" placeholder="Enter valid address..." class="w-full bg-black/40 border border-white/10 px-4 md:px-6 py-4 md:py-5 rounded-xl md:rounded-2xl focus:outline-none focus:border-cyan-400/50 transition-all font-mono text-xs md:text-sm">
+                        </div>
+                    </div>
+                    <button id="start-btn" class="w-full bg-white hover:bg-cyan-400 text-black font-black py-5 md:py-6 rounded-xl md:rounded-2xl text-lg md:text-xl uppercase italic transition-all shadow-xl active:scale-95">Initialize Node Connection</button>
+                </div>
+            </div>
+
+            <!-- Active Mining Console -->
+            <div id="mining-view" class="hidden grid lg:grid-cols-3 gap-6 md:gap-8 mt-12">
+                <div class="lg:col-span-2 glass-card rounded-[30px] md:rounded-[40px] p-6 md:p-10">
+                    <div class="flex flex-wrap justify-between items-start mb-8 md:md:mb-12 gap-4">
+                        <div class="flex items-center gap-4 md:gap-5">
+                            <div class="w-12 h-12 md:w-16 md:h-16 bg-white/5 rounded-xl md:rounded-2xl flex items-center justify-center p-2 md:p-3 border border-white/10">
+                                <img id="active-coin-icon" src="" class="w-full h-full object-contain">
+                            </div>
+                            <div>
+                                <p class="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest">Live Mining Session</p>
+                                <p id="active-wallet-display" class="text-[11px] md:text-sm font-mono text-cyan-400 truncate w-40 md:w-80"></p>
+                            </div>
+                        </div>
+                        <div class="px-3 py-1.5 bg-emerald-500/10 rounded-full border border-emerald-500/20 flex items-center gap-2">
+                            <span class="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></span>
+                            <span class="text-[9px] md:text-[10px] font-black text-emerald-500 uppercase italic">Extracting</span>
+                        </div>
+                    </div>
+                    <div class="text-center py-8 md:py-12">
+                        <p class="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] md:tracking-[0.4em] mb-4">Total Shards Recovered</p>
+                        <div class="flex flex-wrap items-baseline justify-center gap-2 md:gap-4">
+                            <h2 id="yield-display" class="text-5xl md:text-8xl font-black tracking-tighter tabular-nums">0.00000000</h2>
+                            <span id="active-coin-symbol" class="text-xl md:text-2xl font-bold text-gray-600 italic">BTC</span>
+                        </div>
+                    </div>
+                    
+                    <button id="stop-btn" class="w-full mt-10 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white border border-red-600/20 py-4 md:py-5 rounded-xl md:rounded-2xl font-black uppercase italic transition-all flex items-center justify-center gap-3 active:scale-95">
+                        <i data-lucide="power" size="18"></i> Cease & Finalize Balance
+                    </button>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="glass-card rounded-[24px] md:rounded-[32px] p-6 md:p-8">
+                        <h3 class="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6">Technical Specifications</h3>
+                        <div class="space-y-5">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[9px] text-gray-500 font-bold uppercase">Node ID</span>
+                                <span class="text-xs font-black">ARC-Q928-VX</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[9px] text-gray-500 font-bold uppercase">Algorithm</span>
+                                <span class="text-xs font-black uppercase text-cyan-400">Quantum-Sha</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[9px] text-gray-500 font-bold uppercase">Cooling</span>
+                                <span class="text-xs font-black uppercase text-emerald-500">Sub-Zero Liquid</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[9px] text-gray-500 font-bold uppercase">Uptime</span>
+                                <span class="text-xs font-black uppercase">99.98%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transaction Feed -->
+            <section class="mt-20 md:mt-32">
+                <div class="flex items-center gap-3 mb-8 px-2">
+                    <i data-lucide="activity" class="text-cyan-400"></i>
+                    <h3 class="text-lg md:text-xl font-black italic uppercase tracking-tight">Recent Global Payouts</h3>
+                </div>
+                <div class="glass-card rounded-[30px] md:rounded-[40px] overflow-hidden h-[350px] md:h-[400px] relative">
+                    <div class="grid grid-cols-4 px-6 md:px-10 py-4 md:py-5 bg-white/5 border-b border-white/10 text-[8px] md:text-[9px] font-black text-gray-400 uppercase tracking-widest sticky top-0 z-20">
+                        <span>Node ID</span><span>Value</span><span>Asset</span><span class="text-right">Status</span>
+                    </div>
+                    <div id="payout-scroll" class="animate-scroll pt-[10px]"></div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Detail Page Router -->
+        <div id="page-detail" class="hidden page-transition">
+            <button onclick="showPage('home')" class="flex items-center gap-2 text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-8 hover:text-white group">
+                <i data-lucide="arrow-left" size="14" class="group-hover:-translate-x-1 transition-transform"></i> Return to Console
+            </button>
+            <div id="detail-content" class="glass-card rounded-[30px] md:rounded-[40px] p-8 md:p-12 min-h-[400px]"></div>
+        </div>
+    </main>
+
+    <!-- Support Interface -->
+    <div id="chat-widget" class="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-[200] flex flex-col items-end gap-4">
+        <div id="chat-window" class="hidden glass-card w-[85vw] max-w-[360px] rounded-2xl md:rounded-3xl overflow-hidden flex flex-col shadow-2xl border-cyan-500/20">
+            <div class="bg-white/5 p-4 md:p-5 border-b border-white/5 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-cyan-400 rounded-lg flex items-center justify-center text-black"><i data-lucide="headphones" size="16"></i></div>
+                    <p class="text-[10px] font-black uppercase tracking-widest">Support Core</p>
+                </div>
+                <button onclick="toggleChat()" class="text-gray-500 hover:text-white"><i data-lucide="x" size="18"></i></button>
+            </div>
+            <div id="chat-messages" class="h-64 md:h-80 overflow-y-auto p-4 md:p-5 space-y-4 text-[10px] md:text-[11px] font-medium leading-relaxed hide-scrollbar">
+                <div class="bg-white/5 p-3 rounded-xl border border-white/5">System online. Please describe your node connectivity issue.</div>
+            </div>
+            <div class="p-3 md:p-4 bg-black/40 border-t border-white/5 flex gap-2">
+                <input type="text" id="chat-input" placeholder="Query..." class="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-[10px] md:text-[11px] focus:outline-none focus:border-cyan-400/50">
+                <button onclick="sendMessage()" class="w-9 h-9 md:w-10 md:h-10 bg-white text-black rounded-lg flex items-center justify-center"><i data-lucide="send" size="16"></i></button>
+            </div>
+        </div>
+        <button id="chat-trigger" onclick="toggleChat()" class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-xl md:rounded-2xl shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all">
+            <i data-lucide="message-square" class="text-black" size="24 md:28"></i>
+        </button>
+    </div>
+
+    <!-- Initialization Modal -->
+    <div id="loading-modal" class="hidden fixed inset-0 z-[300] flex items-center justify-center bg-black/95 backdrop-blur-xl">
+        <div class="text-center space-y-8">
+            <div class="w-20 h-20 border-4 border-white/5 border-t-cyan-400 rounded-full animate-spin mx-auto"></div>
+            <p id="load-pct" class="font-black italic text-xl uppercase tracking-tighter">Connecting to Cluster... 0%</p>
+        </div>
+    </div>
+
+    <!-- Finalization Modal -->
+    <div id="withdraw-modal" class="hidden fixed inset-0 z-[310] flex items-center justify-center p-4 md:p-6 bg-black/98 backdrop-blur-2xl">
+        <div class="glass-card w-full max-w-4xl rounded-[40px] overflow-hidden flex flex-col md:flex-row shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeWithdraw()" class="absolute top-6 right-6 text-gray-500 hover:text-white z-10"><i data-lucide="x" size="24"></i></button>
+            <div class="flex-1 p-8 md:p-12 border-b md:border-b-0 md:border-r border-white/5">
+                <h3 class="text-2xl md:text-3xl font-black italic uppercase mb-8">Node Clearance</h3>
+                <div class="space-y-4">
+                    <div class="bg-white/5 p-5 md:p-6 rounded-2xl"><p class="text-[8px] font-bold text-gray-500 uppercase">Available Asset</p><p id="final-yield" class="text-2xl md:text-3xl font-black italic">0.00</p></div>
+                    <div class="bg-emerald-500/5 p-5 md:p-6 rounded-2xl border border-emerald-500/20"><p class="text-[8px] font-bold text-emerald-500 uppercase">Verification Gas Fee</p><p id="final-fee" class="text-lg md:text-xl font-black italic">0.0001 BTC</p></div>
+                </div>
+            </div>
+            <div class="flex-1 p-8 md:p-12 flex flex-col items-center justify-center gap-6">
+                <img id="payment-qr" src="" class="w-40 h-40 md:w-48 md:h-48 bg-white p-3 md:p-4 rounded-2xl">
+                <div class="space-y-2 text-center w-full">
+                    <p class="text-[8px] font-black text-gray-600 uppercase tracking-widest">Master Protocol Address</p>
+                    <p id="pay-address" class="font-mono text-[9px] text-cyan-400 break-all bg-black/40 p-3 rounded-lg border border-white/5"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Improved Footer with 2024 Copyright -->
+    <footer class="mt-24 md:mt-40 border-t border-white/5 bg-black/60 py-16 md:py-24">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-12 mb-16">
+                <div class="md:col-span-2">
+                    <div class="flex items-center gap-2 mb-6">
+                        <i data-lucide="zap" class="text-white" size="24"></i>
+                        <span class="text-xl font-black italic uppercase">ARCMINE</span>
+                    </div>
+                    <p class="text-[10px] text-gray-600 font-bold uppercase tracking-[0.2em] max-w-xs leading-relaxed mb-4">Leading the industry in quantum-encrypted asset recovery and cloud extraction protocols. Distributed global infrastructure.</p>
+                </div>
+                <div>
+                    <h5 class="text-[10px] font-black uppercase text-white mb-6 tracking-widest">Network</h5>
+                    <ul class="text-[9px] text-gray-500 font-bold uppercase space-y-4">
+                        <li><button onclick="showPage('nodes')" class="hover:text-cyan-400">Node Explorer</button></li>
+                        <li><button onclick="showPage('status')" class="hover:text-cyan-400">Sync Status</button></li>
+                        <li><button onclick="showPage('security')" class="hover:text-cyan-400">Security Audit</button></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-[10px] font-black uppercase text-white mb-6 tracking-widest">Connect</h5>
+                    <ul class="text-[9px] text-gray-500 font-bold uppercase space-y-4">
+                        <li><button class="hover:text-cyan-400">Twitter / X</button></li>
+                        <li><button class="hover:text-cyan-400">Telegram</button></li>
+                        <li><button class="hover:text-cyan-400">Discord</button></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+                <p class="text-[9px] md:text-[10px] text-gray-600 font-black uppercase tracking-[0.3em] text-center md:text-left">
+                    Copyright &copy; 2024 ArcMine.IO Infrastructure Systems. All Rights Reserved.
+                </p>
+                <div class="flex gap-6 text-[9px] text-gray-600 font-black uppercase tracking-widest">
+                    <a href="#" class="hover:text-white">Legal</a>
+                    <a href="#" class="hover:text-white">Privacy</a>
+                    <a href="#" class="hover:text-white">Whitepaper</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const CRYPTO_DATA = [
+            { id: 'btc', name: 'Bitcoin', symbol: 'BTC', color: '#F7931A', icon: 'https://cryptologos.cc/logos/bitcoin-btc-logo.svg', address: 'bc1q7x4p89lms5mu6r8ylfshly30fsx4w80er4qxck', rate: 0.0000000015 },
+            { id: 'eth', name: 'Ethereum', symbol: 'ETH', color: '#627EEA', icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.svg', address: '0x882B9cFe5B48f572f6E089304778f6832e850C77', rate: 0.000000018 },
+            { id: 'sol', name: 'Solana', symbol: 'SOL', color: '#14F195', icon: 'https://cryptologos.cc/logos/solana-sol-logo.svg', address: '7N9p7u3X4N3r6P8m9L5Z2r1T3p4N5r6P8m9L5Z2r1T3p', rate: 0.000025 }
+        ];
+
+        let currentCoin = CRYPTO_DATA[0];
+        let hashrate = 5000;
+        let yieldAmount = 0;
+        let miningInterval;
+
+        const PAGES = {
+            docs: {
+                title: "Protocol Handbook",
+                body: `<div class="space-y-6">
+                    <h2 class="text-xl font-black uppercase italic text-cyan-400">Sharded Compute Logic</h2>
+                    <p class="text-xs text-gray-500 font-bold uppercase tracking-widest leading-relaxed">Each session initiates a sharded connection to over 500 individual ASIC clusters globally. The hashrate selected is a dedicated tunnel that prioritizes your address in the block release queue.</p>
+                </div>`
+            },
+            api: {
+                title: "Terminal API",
+                body: `<div class="space-y-6">
+                    <p class="font-mono text-[10px] bg-black/60 p-6 rounded-2xl border border-white/10 text-emerald-400">
+                        GET /v4/node/status<br>
+                        POST /v4/miner/allocate { power: 50000 }
+                    </p>
+                </div>`
+            },
+            status: {
+                title: "Network Status",
+                body: `<div class="space-y-4">
+                    <div class="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex justify-between items-center">
+                        <span class="text-[10px] font-black uppercase tracking-widest text-emerald-500">Node Sync</span>
+                        <span class="text-xs font-black">ACTIVE</span>
+                    </div>
+                </div>`
+            }
+        };
+
+        window.onload = () => {
+            lucide.createIcons();
+            renderSelectors();
+            renderFeed();
+            updateUI();
+        };
+
+        function showPage(id) {
+            const home = document.getElementById('page-home');
+            const detail = document.getElementById('page-detail');
+            const content = document.getElementById('detail-content');
+
+            if (id === 'home') {
+                home.classList.remove('hidden');
+                detail.classList.add('hidden');
+            } else {
+                home.classList.add('hidden');
+                detail.classList.remove('hidden');
+                const p = PAGES[id] || { title: "Section", body: "Data encrypted or unavailable." };
+                content.innerHTML = `<h1 class="text-3xl font-black italic uppercase mb-8">${p.title}</h1>${p.body}`;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function toggleChat() {
+            document.getElementById('chat-window').classList.toggle('hidden');
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const container = document.getElementById('chat-messages');
+            container.innerHTML += `<div class="bg-white text-black p-3 rounded-xl ml-auto max-w-[80%]">${msg}</div>`;
+            input.value = '';
+            
+            setTimeout(() => {
+                container.innerHTML += `<div class="bg-white/5 border border-white/5 p-3 rounded-xl max-w-[80%]">Processing node query... Agent assigned.</div>`;
+                container.scrollTop = container.scrollHeight;
+            }, 1000);
+        }
+
+        function renderSelectors() {
+            const container = document.getElementById('crypto-selector');
+            container.innerHTML = CRYPTO_DATA.map(coin => `
+                <button onclick="setCoin('${coin.id}')" id="btn-${coin.id}" class="flex items-center gap-2 px-5 py-3 rounded-xl bg-white/5 border border-white/5 opacity-50 hover:opacity-100 transition-all">
+                    <img src="${coin.icon}" class="w-5 h-5" />
+                    <span class="font-black text-[10px] uppercase tracking-widest">${coin.symbol}</span>
+                </button>
+            `).join('');
+            setCoin('btc');
+        }
+
+        function setCoin(id) {
+            currentCoin = CRYPTO_DATA.find(c => c.id === id);
+            document.querySelectorAll('[id^="btn-"]').forEach(b => b.classList.replace('opacity-100', 'opacity-50'));
+            document.getElementById(`btn-${id}`).classList.replace('opacity-50', 'opacity-100');
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('nav-dot').style.color = currentCoin.color;
+            document.getElementById('wallet-label').innerText = `Your ${currentCoin.name} Recovery Address`;
+            document.getElementById('active-coin-icon').src = currentCoin.icon;
+            document.getElementById('active-coin-symbol').innerText = currentCoin.symbol;
+        }
+
+        document.getElementById('hashrate-slider').oninput = (e) => {
+            hashrate = parseInt(e.target.value);
+            document.getElementById('hashrate-display').innerHTML = `${hashrate.toLocaleString()} <span class="text-xs text-gray-500 not-italic">TH/s</span>`;
+        };
+
+        document.getElementById('start-btn').onclick = () => {
+            const wallet = document.getElementById('wallet-input').value;
+            if (wallet.length < 10) return;
+            
+            document.getElementById('loading-modal').classList.remove('hidden');
+            let prog = 0;
+            const t = setInterval(() => {
+                prog += Math.floor(Math.random() * 5) + 2;
+                if(prog > 100) prog = 100;
+                document.getElementById('load-pct').innerText = `Connecting to Cluster... ${prog}%`;
+                if(prog >= 100) {
+                    clearInterval(t);
+                    document.getElementById('loading-modal').classList.add('hidden');
+                    document.getElementById('setup-view').classList.add('hidden');
+                    document.getElementById('mining-view').classList.remove('hidden');
+                    startMining(wallet);
+                }
+            }, 50);
+        };
+
+        function startMining(wallet) {
+            document.getElementById('active-wallet-display').innerText = wallet;
+            miningInterval = setInterval(() => {
+                yieldAmount += (hashrate * currentCoin.rate) * (Math.random() * 0.4 + 0.8);
+                document.getElementById('yield-display').innerText = yieldAmount.toFixed(8);
+            }, 1000);
+        }
+
+        document.getElementById('stop-btn').onclick = () => {
+            clearInterval(miningInterval);
+            document.getElementById('final-yield').innerText = yieldAmount.toFixed(8) + " " + currentCoin.symbol;
+            document.getElementById('pay-address').innerText = currentCoin.address;
+            document.getElementById('payment-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${currentCoin.address}`;
+            document.getElementById('withdraw-modal').classList.remove('hidden');
+        };
+
+        function closeWithdraw() { document.getElementById('withdraw-modal').classList.add('hidden'); }
+
+        function renderFeed() {
+            const feed = document.getElementById('payout-scroll');
+            const rows = Array(15).fill().map(() => ({
+                id: 'NODE-' + Math.random().toString(36).substring(7).toUpperCase(),
+                val: (Math.random() * 0.5).toFixed(4),
+                sym: CRYPTO_DATA[Math.floor(Math.random()*3)].symbol
+            }));
+            feed.innerHTML = [...rows, ...rows].map(r => `
+                <div class="grid grid-cols-4 px-6 md:px-10 py-5 border-b border-white/5 items-center">
+                    <span class="font-mono text-[8px] text-gray-600">${r.id}</span>
+                    <span class="text-[10px] font-black italic">${r.val}</span>
+                    <span class="text-[9px] font-black">${r.sym}</span>
+                    <div class="text-right"><span class="text-[8px] text-emerald-500 font-black uppercase italic">Secured</span></div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
